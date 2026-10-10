@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "bun:test";
-import { isWorkspaceEmail } from "@crm/auth/workspace";
+import { googleHostedDomain, isWorkspaceEmail } from "@crm/auth/workspace";
 import { externalParticipants } from "../src/mailbox/participants";
 
 beforeEach(() => {
@@ -59,6 +59,26 @@ describe("isWorkspaceEmail", () => {
 		expect(isWorkspaceEmail("lewis@acme.com")).toBe(true);
 		expect(isWorkspaceEmail("contractor@gmail.com")).toBe(true);
 		expect(isWorkspaceEmail("stranger@gmail.com")).toBe(false);
+	});
+});
+
+describe("googleHostedDomain", () => {
+	it("hints Google only for a single-domain allow-list", () => {
+		process.env.ALLOWED_SIGN_IN = "acme.com";
+		expect(googleHostedDomain()).toBe("acme.com");
+	});
+
+	it("omits the hint when an outside address is allowed too", () => {
+		process.env.ALLOWED_SIGN_IN = "acme.com, contractor@globex.com";
+		expect(googleHostedDomain()).toBeUndefined();
+		expect(isWorkspaceEmail("contractor@globex.com")).toBe(true);
+	});
+
+	it("omits the hint for several domains, a lone address, or nothing", () => {
+		for (const value of ["acme.com, globex.com", "lewis@gmail.com", ""]) {
+			process.env.ALLOWED_SIGN_IN = value;
+			expect(googleHostedDomain()).toBeUndefined();
+		}
 	});
 });
 

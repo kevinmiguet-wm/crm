@@ -36,6 +36,18 @@ export function primaryWorkspaceDomain(): string | undefined {
 	return allowList().domains[0];
 }
 
+/**
+ * The Google `hd` hint. Only safe when the allow-list is exactly one domain:
+ * with several domains or any individual address, `hd` would lock out
+ * everyone outside the first domain, so it is omitted.
+ */
+export function googleHostedDomain(): string | undefined {
+	const { domains, addresses } = allowList();
+	return domains.length === 1 && addresses.length === 0
+		? domains[0]
+		: undefined;
+}
+
 export function hasSignInAllowList(): boolean {
 	const { domains, addresses } = allowList();
 	return domains.length > 0 || addresses.length > 0;
