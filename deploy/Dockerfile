@@ -21,6 +21,7 @@ RUN DATABASE_URL="postgresql://build:build@localhost:5432/build" bun install --f
 FROM deps AS api
 WORKDIR /repo/apps/api
 RUN bun run build
+COPY deploy/cron.sh /usr/local/bin/crm-cron
 ENV NODE_ENV=production PORT=3001
 EXPOSE 3001
 CMD ["bun", "dist/main.js"]
