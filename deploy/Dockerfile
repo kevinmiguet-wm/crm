@@ -1,5 +1,6 @@
-# One image recipe for the three services. Each compose service picks a target.
-# Node 24 (eve needs it) for Next.js and the Prisma CLI, plus the Bun the repo pins.
+# One image recipe for the CRM services (api, migrate, app). Each compose service
+# picks a target. The eve research agent is deliberately not built or deployed.
+# Node 24 for Next.js and the Prisma CLI, plus the Bun the repo pins.
 FROM oven/bun:1.3.12-debian AS bun
 FROM node:24-bookworm-slim AS base
 COPY --from=bun /usr/local/bin/bun /usr/local/bin/bun
@@ -28,14 +29,6 @@ CMD ["bun", "dist/main.js"]
 FROM deps AS migrate
 WORKDIR /repo/packages/db
 CMD ["bunx", "prisma", "migrate", "deploy"]
-
-# ── Agent (eve) ──────────────────────────────────────────────────────────────
-FROM deps AS agent
-WORKDIR /repo/apps/agent
-RUN DATABASE_URL="postgresql://build:build@localhost:5432/build" bun run build
-ENV NODE_ENV=production PORT=2000 AGENT_PORT=2000
-EXPOSE 2000
-CMD ["bun", "scripts/start.ts"]
 
 # ── App (Next.js). API_URL is inlined at build time by next.config.ts ───────
 FROM deps AS app

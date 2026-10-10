@@ -1,7 +1,7 @@
 # Self-hosted stack for Coolify (docker-compose build pack).
 # Postgres + Redis stay on the internal network; only app and api get domains.
-# The eve research agent is not deployed yet: its image target lives in
-# deploy/Dockerfile (target "agent") for when it is added.
+# The eve research agent is deliberately not deployed (it needs the Vercel AI
+# Gateway; we drive the CRM from our own agent over its API).
 services:
   postgres:
     image: postgres:17-alpine
